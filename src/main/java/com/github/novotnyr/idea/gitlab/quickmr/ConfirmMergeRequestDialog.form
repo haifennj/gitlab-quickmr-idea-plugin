@@ -79,6 +79,7 @@
             <constraints/>
             <properties>
               <lineWrap value="true"/>
+              <rows value="3"/>
               <wrapStyleWord value="true"/>
             </properties>
           </component>

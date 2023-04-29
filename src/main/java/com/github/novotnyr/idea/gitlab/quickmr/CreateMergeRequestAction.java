@@ -20,6 +20,7 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.util.text.Strings;
 import com.intellij.util.ModalityUiUtil;
 import com.intellij.util.concurrency.annotations.RequiresBackgroundThread;
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -38,6 +40,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 public class CreateMergeRequestAction extends AnAction {
     private final GitService gitService = ServiceManager.getService(GitService.class);
     private User assignee;
+    private String targetBranch;
 
     public CreateMergeRequestAction() {
     }
@@ -72,13 +75,15 @@ public class CreateMergeRequestAction extends AnAction {
             Settings settings = project.getService(Settings.class);
 
             PlaceholderResolver placeholderResolver = new PlaceholderResolver(this.gitService, project, settings);
+            placeholderResolver.setSelectedModule(selectedModule);
+            placeholderResolver.setTargetBranch(getTargetBranch(settings));
             MergeRequestService mergeRequestService = new MergeRequestService(this.gitService, placeholderResolver);
             NewMergeRequest mergeRequest = new NewMergeRequest();
             mergeRequest.setAssignee(this.assignee);
             mergeRequest.setGitLabProjectId(gitLabProjectId);
             mergeRequest.setSourceBranch(getSourceBranch(selectedModule));
 
-            MergeRequestRequest request = mergeRequestService.prepare(mergeRequest, settings);
+            MergeRequestRequest request = mergeRequestService.prepare(mergeRequest, settings, getTargetBranch(settings));
             validate(request, selectedModule, settings)
                     .thenCompose(__ -> mergeRequestService.submit(mergeRequest.getGitLabProjectId(), request, settings))
                     .thenAccept(mergeRequestResponse -> createNotification(mergeRequestResponse, project, gitLabProjectId, settings))
@@ -243,6 +248,22 @@ public class CreateMergeRequestAction extends AnAction {
 
     public void setAssignee(User assignee) {
         this.assignee = assignee;
+    }
+
+    public void setTargetBranch(String targetBranch) {
+        this.targetBranch = targetBranch;
+    }
+
+    private String getTargetBranch(Settings settings) {
+        if (StringUtil.isEmpty(this.targetBranch)) {
+            if (settings.getDefaultTargetBranch().contains(",")){
+                List<String> split = StringUtil.split(settings.getDefaultTargetBranch(), ",");
+                this.targetBranch = split.get(0);
+            } else {
+                this.targetBranch = settings.getDefaultTargetBranch();
+            }
+        }
+        return this.targetBranch;
     }
 
     private static class RequestCannotBeSubmittedException extends RuntimeException {

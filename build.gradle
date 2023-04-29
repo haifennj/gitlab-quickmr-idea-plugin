@@ -35,7 +35,7 @@ intellij {
 }
 
 patchPluginXml {
-    sinceBuild = '213'
+    sinceBuild = '211'
     changeNotes = """
         <ul>
         <li></li>
@@ -43,6 +43,6 @@ patchPluginXml {
       """
 }
 
-publishPlugin {
-    token = intellijPublishToken
-}
+//publishPlugin {
+//    token = intellijPublishToken
+//}

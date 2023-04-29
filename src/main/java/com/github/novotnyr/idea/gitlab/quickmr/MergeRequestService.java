@@ -5,9 +5,11 @@ import com.github.novotnyr.idea.gitlab.GitLab;
 import com.github.novotnyr.idea.gitlab.MergeRequestRequest;
 import com.github.novotnyr.idea.gitlab.MergeRequestResponse;
 import com.github.novotnyr.idea.gitlab.quickmr.settings.Settings;
+import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -22,12 +24,21 @@ public class MergeRequestService {
     }
 
     public MergeRequestRequest prepare(NewMergeRequest newMergeRequest, Settings settings) throws SourceAndTargetBranchCannotBeEqualException, SettingsNotInitializedException {
+        String targetBranch = settings.getDefaultTargetBranch();
+        if (targetBranch.contains(",")) {
+            List<String> split = StringUtil.split(targetBranch, ",");
+            targetBranch = split.get(0);
+        }
+        return prepare(newMergeRequest, settings, targetBranch);
+    }
+
+    public MergeRequestRequest prepare(NewMergeRequest newMergeRequest, Settings settings, String targetBranch) throws SourceAndTargetBranchCannotBeEqualException, SettingsNotInitializedException {
         if (!settings.isInitialized()) {
             throw new SettingsNotInitializedException();
         }
 
         String sourceBranch = newMergeRequest.getSourceBranch();
-        String targetBranch = settings.getDefaultTargetBranch();
+
         if (Objects.equals(sourceBranch, targetBranch)) {
             throw new SourceAndTargetBranchCannotBeEqualException(sourceBranch);
         }

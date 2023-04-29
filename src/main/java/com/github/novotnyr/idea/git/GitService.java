@@ -101,4 +101,27 @@ public class GitService {
                 .filter(commitMessage -> commitMessage.contains(System.lineSeparator()))
                 .map(commitMessage -> commitMessage.substring(commitMessage.indexOf(System.lineSeparator())).trim());
     }
+
+    public Optional<String> getLastCommitMessage(Project project, SelectedModule selectedModule) {
+        try {
+            return Optional.ofNullable(GitHistoryUtils.getCurrentRevisionDescription(project, VcsUtil
+                    .getFilePath(selectedModule.getFile())))
+                    .map(VcsRevisionDescription::getCommitMessage);
+        } catch (VcsException e) {
+            LOG.error("Unable to load last commit message", e);
+            return Optional.empty();
+        }
+    }
+
+    public Optional<String> getLastCommitMessageSubject(Project project, SelectedModule selectedModule) {
+        return getLastCommitMessage(project, selectedModule)
+                .filter(commitMessage -> commitMessage.contains(System.lineSeparator()))
+                .map(commitMessage -> commitMessage.substring(0, commitMessage.indexOf(System.lineSeparator())).trim());
+    }
+
+    public Optional<String> getLastCommitMessageBody(Project project, SelectedModule selectedModule) {
+        return getLastCommitMessage(project, selectedModule)
+                .filter(commitMessage -> commitMessage.contains(System.lineSeparator()))
+                .map(commitMessage -> commitMessage.substring(commitMessage.indexOf(System.lineSeparator())).trim());
+    }
 }
