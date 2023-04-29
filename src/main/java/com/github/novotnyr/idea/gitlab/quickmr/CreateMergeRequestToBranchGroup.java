@@ -29,14 +29,18 @@ public class CreateMergeRequestToBranchGroup extends ActionGroup {
         }
         Settings settings = project.getService(Settings.class);
 
-        List<AnAction> actions = new ArrayList<>();
-        List<String> branches = StringUtil.split(settings.getDefaultTargetBranch(), ",");
-        for (String branch : branches) {
-            CreateMergeRequestAction action = new CreateMergeRequestAction(branch);
-            action.setTargetBranch(branch);
-            actions.add(action);
+        if (StringUtil.isNotEmpty(settings.getDefaultTargetBranch())) {
+            List<AnAction> actions = new ArrayList<>();
+            List<String> branches = StringUtil.split(settings.getDefaultTargetBranch(), ",");
+            for (String branch : branches) {
+                CreateMergeRequestAction action = new CreateMergeRequestAction(branch);
+                action.setTargetBranch(branch);
+                actions.add(action);
+            }
+            return actions.toArray(new AnAction[0]);
+        } else {
+            return new AnAction[0];
         }
-        return actions.toArray(new AnAction[0]);
     }
 
     @Override
@@ -46,6 +50,8 @@ public class CreateMergeRequestToBranchGroup extends ActionGroup {
             return;
         }
         Settings settings = project.getService(Settings.class);
-        e.getPresentation().setEnabledAndVisible(settings.getDefaultTargetBranch().contains(","));
+        if (StringUtil.isNotEmpty(settings.getDefaultTargetBranch())) {
+            e.getPresentation().setEnabledAndVisible(settings.getDefaultTargetBranch().contains(","));
+        }
     }
 }

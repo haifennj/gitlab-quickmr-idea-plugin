@@ -1,6 +1,6 @@
 <idea-plugin>
-    <id>com.github.novotnyr.gitlab-quickmr-idea-plugin</id>
-    <name>GitLab Quick Merge Request</name>
+    <id>com.github.novotnyr.gitlab-quickmr-idea-plugin.fork</id>
+    <name>GitLab Quick Merge Request Optimized</name>
     <version>RELEASE</version>
     <vendor>Róbert Novotný</vendor>
 
@@ -37,21 +37,21 @@
 
 
     <actions>
-        <action id="com.github.novotnyr.idea.gitlab.quickmr.CreateMergeRequestAction"
-                class="com.github.novotnyr.idea.gitlab.quickmr.CreateMergeRequestAction" text="Quick Merge Request">
-            <add-to-group group-id="Git.ContextMenu"/>
-        </action>
-        <action id="com.github.novotnyr.idea.gitlab.quickmr.CreateMergeRequestToBranchGroup" class="com.github.novotnyr.idea.gitlab.quickmr.CreateMergeRequestToBranchGroup">
-            <add-to-group group-id="Git.ContextMenu"/>
-        </action>
-        <action class="com.github.novotnyr.idea.gitlab.quickmr.CreateMergeRequestAndAssignToActionGroup" id="com.github.novotnyr.idea.gitlab.quickmr.CreateMergeRequestAndAssignToActionGroup">
-            <add-to-group group-id="Git.ContextMenu"/>
-        </action>
         <action id="com.github.novotnyr.idea.gitlab.quickmr.AlwaysConfirmCreateMergeRequestAction"
                 class="com.github.novotnyr.idea.gitlab.quickmr.AlwaysConfirmCreateMergeRequestAction"
                 text="Quick Merge Request..."
         >
-            <add-to-group group-id="Git.ContextMenu"/>
+            <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="VersionControlsGroup"/>
+        </action>
+        <action class="com.github.novotnyr.idea.gitlab.quickmr.CreateMergeRequestAndAssignToActionGroup" id="com.github.novotnyr.idea.gitlab.quickmr.CreateMergeRequestAndAssignToActionGroup">
+            <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="VersionControlsGroup"/>
+        </action>
+        <action id="com.github.novotnyr.idea.gitlab.quickmr.CreateMergeRequestToBranchGroup" class="com.github.novotnyr.idea.gitlab.quickmr.CreateMergeRequestToBranchGroup">
+            <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="VersionControlsGroup"/>
+        </action>
+        <action id="com.github.novotnyr.idea.gitlab.quickmr.CreateMergeRequestAction"
+                class="com.github.novotnyr.idea.gitlab.quickmr.CreateMergeRequestAction" text="Quick Merge Request">
+            <add-to-group group-id="EditorLangPopupMenu" anchor="after" relative-to-action="VersionControlsGroup"/>
         </action>
     </actions>
 
