@@ -14,10 +14,12 @@ import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.application.ex.ApplicationManagerEx;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
+import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageType;
 import com.intellij.openapi.ui.popup.Balloon;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.util.NlsContexts;
 import com.intellij.openapi.vcs.VcsConfigurableProvider;
 import com.intellij.ui.AnActionButton;
 import com.intellij.ui.CollectionListModel;
@@ -31,6 +33,8 @@ import okhttp3.HttpUrl;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpResponseException;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -52,9 +56,9 @@ import java.util.List;
 import java.util.concurrent.CompletionException;
 import java.util.function.Consumer;
 
-public class SettingsUi implements Configurable {
-    private final Project project;
-    private final BrowserLauncher browserLauncher;
+public class SettingsUi implements SearchableConfigurable {
+    private Project project = null;
+    private BrowserLauncher browserLauncher;
 
     private JBTextField urlTextField;
     private JBPasswordField accessTokenTextField;
@@ -85,6 +89,17 @@ public class SettingsUi implements Configurable {
      * Cached hashcode of access token to speed up isModified()
      */
     private int accessTokenHashCode;
+
+    @Override
+    public @NotNull
+    @NonNls String getId() {
+        return "abc";
+    }
+
+    public SettingsUi() {
+//        this.project = project;
+//        this.browserLauncher = browserLauncher;
+    }
 
     public SettingsUi(Project project) {
         this.project = project;
@@ -324,38 +339,44 @@ public class SettingsUi implements Configurable {
 
     //-------
 
-    @Nls(capitalization = Nls.Capitalization.Title)
+//    @Override
+//    public @NlsContexts.ConfigurableName String getDisplayName() {
+//        return "GitLab Quick Merge Request";
+//    }
+
+
     @Override
-    public String getDisplayName() {
+    public @NlsContexts.ConfigurableName String getDisplayName() {
         return "GitLab Quick Merge Request";
     }
 
     @Nullable
-    @Override
+//    @Override
     public JComponent createComponent() {
         return this.rootPanel;
     }
 
-    @Override
+//    @Override
     public boolean isModified() {
-        boolean unmodified = SettingUtils.equals(this.urlTextField, settings.getGitLabUri())
-                && !isAccessTokenModified()
-                && SettingUtils.equals(this.targetBranchTextField, settings.getDefaultTargetBranch())
-                && SettingUtils.equals(this.mergeRequestTitleTextField, settings.getDefaultTitle())
-                && SettingUtils.equals(this.mergeRequestDescriptionTextArea, settings.getDefaultDescription())
-                && SettingUtils.equals(this.labelsTextField, settings.getDefaultLabels())
-                && this.enableDefaultAssigneeActionCheckBox.isSelected() == (settings.isEnableMergeRequestToFavoriteAssignee())
-                && SettingUtils.hasSameUniqueElements(
-                        this.assigneeListModel.getItems(),
-                        settings.getDefaultAssignees())
-                && this.enableAssigneesCheckBox.isSelected() == (settings.isAssigneesEnabled())
-                && this.removeSourceBranchCheckbox.isSelected() == (settings.isRemoveSourceBranchOnMerge())
-                && this.squashCommitsCheckBox.isSelected() == (settings.isSquashCommits())
-                && this.showConfirmationDialogCheckBox.isSelected() == (settings.isShowConfirmationDialog())
-                && this.insecureTLSCheckBox.isSelected() == (settings.isInsecureTls())
-                ;
-
-        return !unmodified;
+//        boolean unmodified = SettingUtils.equals(this.urlTextField, settings.getGitLabUri())
+//                && !isAccessTokenModified()
+//                && SettingUtils.equals(this.targetBranchTextField, settings.getDefaultTargetBranch())
+//                && SettingUtils.equals(this.mergeRequestTitleTextField, settings.getDefaultTitle())
+//                && SettingUtils.equals(this.mergeRequestDescriptionTextArea, settings.getDefaultDescription())
+//                && SettingUtils.equals(this.labelsTextField, settings.getDefaultLabels())
+//                && this.enableDefaultAssigneeActionCheckBox.isSelected() == (settings.isEnableMergeRequestToFavoriteAssignee())
+//                && SettingUtils.hasSameUniqueElements(
+//                        this.assigneeListModel.getItems(),
+//                        settings.getDefaultAssignees())
+//                && this.enableAssigneesCheckBox.isSelected() == (settings.isAssigneesEnabled())
+//                && this.removeSourceBranchCheckbox.isSelected() == (settings.isRemoveSourceBranchOnMerge())
+//                && this.squashCommitsCheckBox.isSelected() == (settings.isSquashCommits())
+//                && this.showConfirmationDialogCheckBox.isSelected() == (settings.isShowConfirmationDialog())
+//                && this.insecureTLSCheckBox.isSelected() == (settings.isInsecureTls())
+//                ;
+//
+//        return !unmodified;
+        return false;
     }
 
     private boolean isAccessTokenModified() {
@@ -368,7 +389,7 @@ public class SettingsUi implements Configurable {
         return accessTokenHash != storedAccessTokenHash;
     }
 
-    @Override
+//    @Override
     public void reset() {
         this.settings = this.project.getService(Settings.class);
         bindToComponents(settings);
@@ -383,7 +404,7 @@ public class SettingsUi implements Configurable {
         this.accessTokenHashCode = accessToken.hashCode();
     }
 
-    @Override
+//    @Override
     public void apply() throws ConfigurationException {
         List<String> validationErrors = validate();
         if (!validationErrors.isEmpty()) {
@@ -405,10 +426,14 @@ public class SettingsUi implements Configurable {
         settings.setInsecureTls(this.insecureTLSCheckBox.isSelected());
     }
 
-    public static class ConfigurableProvider implements VcsConfigurableProvider {
-        @Override
-        public Configurable getConfigurable(Project project) {
-            return new SettingsUi(project);
-        }
-    }
+//    public static class ConfigurableProvider extends ApplicationConfigurable {
+//        public ConfigurableProvider(@NotNull Project project) {
+//            super(project);
+//        }
+//
+//        @Override
+//        public Configurable getConfigurable(Project project) {
+//            return new SettingsUi(project);
+//        }
+//    }
 }
